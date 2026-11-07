@@ -74,7 +74,43 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Enable text selection and copying anywhere across the web app */
+.brand,
+.brand-title,
+.brand-title-text,
+.brand-author,
+.truth-table,
+.truth-table td,
+.truth-table th,
+.card,
+.analysis-card,
+.step-item,
+.learning-mode-card,
+.kmap-result-card,
+.result-equation-box,
+.custom-circuit-stats,
+.circuit-footer,
+.footer-equation,
+.tt-note,
+.form-label,
+p, span, code, pre, label, h1, h2, h3, h4, h5, h6, table, th, td, li, strong, em, b, i {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Prevent accidental selection on canvas and drag handles */
+#circuit-canvas,
+.canvas-container canvas,
+.sidebar-resizer,
+.btn,
+.mode-tab-btn,
+.kmap-cell-interactive {
   user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Header */
@@ -87,12 +123,14 @@ body {
   justify-content: space-between;
   padding: 0 20px;
   z-index: 100;
+  gap: 12px;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .brand-icon {
@@ -103,9 +141,41 @@ body {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.3px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.brand-title-text {
   background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.brand-author {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: #38bdf8;
+  -webkit-text-fill-color: #38bdf8;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+@media (max-width: 1400px) {
+  .header-badges {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .brand-title-text {
+    font-size: 15px;
+  }
+  .brand-author {
+    font-size: 10.5px;
+  }
 }
 
 .header-badges {
@@ -371,6 +441,45 @@ body {
   background: rgba(16, 185, 129, 0.15) !important;
 }
 
+.custom-expr-builder-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.custom-builder-sym-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-builder-sym-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.custom-builder-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .custom-guide-card {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--border-color);
@@ -510,10 +619,10 @@ body {
   background-color: rgba(15, 23, 42, 0.6);
 }
 
-.tab-btn {
+.tab-btn, .custom-tab-btn {
   flex: 1;
-  padding: 12px 10px;
-  font-size: 12px;
+  padding: 11px 8px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-muted);
   background: transparent;
@@ -528,12 +637,12 @@ body {
   white-space: nowrap;
 }
 
-.tab-btn:hover {
+.tab-btn:hover, .custom-tab-btn:hover {
   color: var(--text-main);
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-.tab-btn.active {
+.tab-btn.active, .custom-tab-btn.active {
   color: var(--accent-blue);
   border-bottom-color: var(--accent-blue);
   background-color: rgba(56, 189, 248, 0.05);
@@ -548,13 +657,13 @@ body {
   gap: 18px;
 }
 
-.tab-pane {
+.tab-pane, .custom-tab-pane {
   display: none;
   flex-direction: column;
   gap: 16px;
 }
 
-.tab-pane.active {
+.tab-pane.active, .custom-tab-pane.active {
   display: flex;
 }
 
@@ -963,9 +1072,55 @@ body {
 .val-1, .out-1 { color: var(--accent-cyan); font-weight: 700; }
 .val-0, .out-0 { color: var(--text-dim); }
 
+/* Interactive Truth Table Rows & Dynamic Input Tracing */
+.truth-table tbody tr {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.truth-table tbody tr:hover:not(.row-active) {
+  background-color: rgba(56, 189, 248, 0.08);
+}
+
 .truth-table tr.row-active {
-  background-color: rgba(0, 242, 254, 0.2);
-  border-left: 3px solid var(--accent-cyan);
+  background-color: rgba(6, 182, 212, 0.22) !important;
+  box-shadow: inset 0 0 0 1.5px #06b6d4;
+  position: relative;
+}
+
+.truth-table tr.row-active td {
+  background-color: rgba(6, 182, 212, 0.22) !important;
+  color: #f8fafc !important;
+  font-weight: 700;
+  border-top: 1px solid #06b6d4 !important;
+  border-bottom: 1px solid #06b6d4 !important;
+}
+
+.truth-table tr.row-active td.td-state {
+  background-color: #06b6d4 !important;
+  color: #0f172a !important;
+  font-weight: 900;
+}
+
+.truth-table tr.row-active td.val-1,
+.truth-table tr.row-active td.out-1 {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+}
+
+.truth-table tr.row-active td.val-0,
+.truth-table tr.row-active td.out-0 {
+  color: #94a3b8 !important;
+}
+
+@keyframes badgePulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 4px rgba(6, 182, 212, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+}
+
+.badge-highlight {
+  animation: badgePulse 0.4s ease-out;
 }
 
 /* Center Canvas Workspace */
@@ -3461,7 +3616,10 @@ body.kmap-fullscreen-active {
   <header class="app-header">
     <div class="brand">
       <span class="brand-icon">⚡</span>
-      <h1 class="brand-title">Boolean Expression to Circuit Designer</h1>
+      <h1 class="brand-title">
+        <span class="brand-title-text">Boolean Expression to Circuit Designer</span>
+        <span class="brand-author">By Rajababu Rajbanshi</span>
+      </h1>
       <div class="header-badges">
         <span class="badge">IEEE Std 91-1984</span>
         <span class="badge">Flexible Wires</span>
@@ -3792,86 +3950,257 @@ body.kmap-fullscreen-active {
 
       <!-- SIDEBAR PANEL 3: Custom Circuit Studio (Active in Custom Build Mode) -->
       <div id="sidebar-custom-panel" class="sidebar-mode-panel" style="display: none;">
-        <div class="sidebar-header-bar">
-          <div class="section-title" style="margin-bottom:0;">
-            <span>🛠️</span> Custom Circuit Studio
-          </div>
-          <span class="badge badge-rec">Build From Scratch</span>
-        </div>
+        <!-- Mode Tabs for Custom Circuit Studio: Build Studio, Expression to Circuit, Truth Table, How It Works -->
+        <nav class="sidebar-tabs custom-tabs">
+          <button class="custom-tab-btn active" data-custom-tab="custom-tab-builder" title="Custom Build Canvas & Quick Palette">
+            <span>🛠️</span> Build Studio
+          </button>
+          <button class="custom-tab-btn" data-custom-tab="custom-tab-expr" title="Analyze Logic & Convert to Expression to Circuit">
+            <span>📐</span> Expression to Circuit
+          </button>
+          <button class="custom-tab-btn" data-custom-tab="custom-tab-truth" title="Live Truth Table for Custom Circuit">
+            <span>📊</span> Truth Table
+          </button>
+          <button class="custom-tab-btn" data-custom-tab="custom-tab-how" title="How It Works & Gate Analysis for Custom Circuit">
+            <span>💡</span> How It Works
+          </button>
+        </nav>
 
         <div class="sidebar-content" style="padding: 12px 14px;">
-          <div class="custom-builder-banner">
-            <span>💡</span> <strong>Independent Studio:</strong> Build your own circuit freely. Standard circuits are decoupled so they will not overwrite or interfere with your design.
-          </div>
-
-          <!-- Section 1: Live Logic Analysis -->
-          <div class="section-title" style="margin-top: 14px;">
-            <span>📐</span> Live Circuit Logic Extractor
-          </div>
-          <div class="custom-logic-card">
-            <div class="custom-logic-header">
-              <span class="lbl-small">Extracted Boolean Logic:</span>
-              <button id="btn-custom-copy-expr" class="btn btn-outline btn-sm" title="Copy Boolean Formula">📋 Copy</button>
+          <!-- PANE 1: Build Studio (Canvas Palette, Logic Extractor & Actions) -->
+          <div id="custom-tab-builder" class="custom-tab-pane active">
+            <div class="custom-builder-banner">
+              <span>💡</span> <strong>Independent Studio:</strong> Build your own circuit freely. Standard circuits are decoupled so they will not overwrite or interfere with your design.
             </div>
-            <code class="custom-expr-display" id="custom-extracted-expr">No active gates or outputs yet</code>
-            <div class="custom-circuit-stats" id="custom-circuit-stats">
-              <span class="custom-stat-pill" id="custom-stat-inputs">Inputs: 0</span>
-              <span class="custom-stat-pill" id="custom-stat-gates">Gates: 0</span>
-              <span class="custom-stat-pill" id="custom-stat-outputs">Outputs: 0</span>
-              <span class="custom-stat-pill" id="custom-stat-wires">Wires: 0</span>
+
+            <!-- Section 1: Live Logic Analysis -->
+            <div class="section-title" style="margin-top: 14px;">
+              <span>📐</span> Live Circuit Logic Extractor
+            </div>
+            <div class="custom-logic-card">
+              <div class="custom-logic-header">
+                <span class="lbl-small">Extracted Boolean Logic:</span>
+                <button id="btn-custom-copy-expr" class="btn btn-outline btn-sm" title="Copy Boolean Formula">📋 Copy</button>
+              </div>
+              <code class="custom-expr-display" id="custom-extracted-expr">No active gates or outputs yet</code>
+              <div class="custom-circuit-stats" id="custom-circuit-stats">
+                <span class="custom-stat-pill" id="custom-stat-inputs">Inputs: 0</span>
+                <span class="custom-stat-pill" id="custom-stat-gates">Gates: 0</span>
+                <span class="custom-stat-pill" id="custom-stat-outputs">Outputs: 0</span>
+                <span class="custom-stat-pill" id="custom-stat-wires">Wires: 0</span>
+              </div>
+            </div>
+
+            <!-- Section 2: Build Circuit from Boolean Expression -->
+            <div class="section-title" style="margin-top: 16px;">
+              <span>⚡</span> Build Circuit from Boolean Expression
+            </div>
+            <div class="custom-expr-builder-card">
+              <div class="form-group" style="margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label class="form-label" style="font-size: 11px; margin: 0; font-weight: 600;">
+                    <span>Boolean Expression:</span>
+                  </label>
+                  <select id="custom-builder-example-select" class="select-control" style="font-size: 10px; padding: 2px 6px; width: auto;" title="Quickly load sample Boolean expressions">
+                    <option value="">-- Load Example --</option>
+                    <option value="Y = (A + B) · C">Y = (A + B) · C</option>
+                    <option value="OUT = A'B + AB'">OUT = A'B + AB' (XOR)</option>
+                    <option value="Y = !(A · B) + C">Y = !(A · B) + C</option>
+                    <option value="S = A ⊕ B; Cout = A · B">Half Adder (S, Cout)</option>
+                    <option value="Y = A · B + B · C + A · C">Majority Function</option>
+                    <option value="Y = (A ⊕ B) ⊕ Cin">Full Adder Sum</option>
+                    <option value="Y = S' · D0 + S · D1">2-to-1 Multiplexer</option>
+                  </select>
+                </div>
+                <textarea id="custom-builder-expr-input" class="expr-textarea" style="min-height: 52px; font-size: 12px; font-family: monospace; resize: vertical;" placeholder="e.g. Y = (A + B) · C or OUT = A'B + AB'" spellcheck="false"></textarea>
+              </div>
+
+              <!-- Mathematical Operators Helper Palette -->
+              <div class="symbol-helpers" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px;">
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="+">+</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="·">·</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="'">'</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="!">!</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="⊕">⊕</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="⊙">⊙</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert="(">(</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert=")">)</button>
+                <button type="button" class="custom-builder-sym-btn sym-btn" data-insert=";">;</button>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 6px;">
+                <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Synthesis Architecture:</label>
+                <select id="custom-builder-arch-select" class="select-control" style="font-size: 11px; padding: 4px 8px; width: 100%;">
+                  <option value="xor_opt" selected>XOR/XNOR Optimized (Recommended)</option>
+                  <option value="basic">Basic Discrete Gates (AND, OR, NOT)</option>
+                  <option value="nand">Universal NAND Only (7400 TTL)</option>
+                  <option value="nor">Universal NOR Only (7402 TTL)</option>
+                </select>
+              </div>
+
+              <div class="custom-builder-actions-row">
+                <button id="btn-custom-build-from-expr" class="btn btn-primary btn-sm" style="flex: 1; padding: 8px 6px; font-weight: 600;" title="Synthesize this circuit directly onto the Custom Canvas (replaces current design)">
+                  <span>⚡</span> Build on Canvas
+                </button>
+                <button id="btn-custom-append-from-expr" class="btn btn-outline btn-sm" style="flex: 1; padding: 8px 6px;" title="Append this logic alongside existing custom components without clearing">
+                  <span>➕</span> Add to Canvas
+                </button>
+              </div>
+            </div>
+
+            <!-- Section 3: Quick Palette & Gates -->
+            <div class="section-title" style="margin-top: 16px;">
+              <span>🛠️</span> Quick Add Components
+            </div>
+            <div class="custom-palette-grid">
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="SWITCH"><span>🔘</span> + Switch</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="PROBE"><span>💡</span> + Probe</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="AND"><span>·</span> + AND (74LS08)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="OR"><span>+</span> + OR (74LS32)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="NOT"><span>'</span> + NOT (74LS04)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="NAND"><span>⊼</span> + NAND (74LS00)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="NOR"><span>⊽</span> + NOR (74LS02)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="XOR"><span>⊕</span> + XOR (74LS86)</button>
+              <button class="btn btn-outline btn-sm btn-custom-add" data-add="XNOR"><span>⊙</span> + XNOR (74LS266)</button>
+            </div>
+
+            <!-- Section 3: Design Actions -->
+            <div class="section-title" style="margin-top: 16px;">
+              <span>🎯</span> Custom Design Actions
+            </div>
+            <div class="custom-actions-stack">
+              <button id="btn-custom-action-truth" class="btn btn-outline btn-block" style="width: 100%;" title="Open dynamic Truth Table for this custom circuit">
+                <span>📊</span> View Truth Table
+              </button>
+              <button id="btn-custom-action-how" class="btn btn-outline btn-block" style="width: 100%;" title="Open How It Works analysis for this custom circuit">
+                <span>💡</span> View How It Works
+              </button>
+              <button id="btn-custom-action-expr" class="btn btn-outline btn-block" style="width: 100%;" title="Open Expression to Circuit view for this custom circuit">
+                <span>📐</span> Expression to Circuit Mode
+              </button>
+              <button id="btn-custom-send-kmap" class="btn btn-outline btn-block" style="width: 100%;" title="Send this custom circuit logic to K-Map Studio for minimization">
+                <span>🗺️</span> Minimize on K-Map
+              </button>
+              <button id="btn-custom-save-design" class="btn btn-outline btn-block" style="width: 100%;" title="Save custom circuit and download as a JSON file (.json)">
+                <span>💾</span> Save & Export (.json)
+              </button>
+              <button id="btn-custom-load-design" class="btn btn-outline btn-block" style="width: 100%;" title="Import and load a custom circuit from a JSON file on your computer">
+                <span>📂</span> Import from File (.json)
+              </button>
+              <button id="btn-custom-restore-storage" class="btn btn-outline btn-block" style="width: 100%;" title="Restore previously saved circuit from browser storage">
+                <span>🔄</span> Restore from Browser
+              </button>
+              <input type="file" id="input-custom-import-file" accept=".json,.circuit" style="display: none;">
+              <button id="btn-custom-clear-canvas" class="btn btn-outline btn-block" style="width: 100%; color: var(--accent-red);" title="Start over with a blank canvas">
+                <span>🧹</span> Clear to Blank Canvas
+              </button>
+            </div>
+
+            <!-- Section 4: Wiring & Bending Tips -->
+            <div class="section-title" style="margin-top: 16px;">
+              <span>💡</span> Self-Build Guide & Tips
+            </div>
+            <div class="custom-guide-card">
+              <ul>
+                <li><strong>Rename Input/Output:</strong> Right-click on any switch or probe to edit its name / notation.</li>
+                <li><strong>Connect:</strong> Click an output port (circle), then click an input port to wire.</li>
+                <li><strong>Bend Wires:</strong> Click anywhere on a wire to add a bend dot. Add N bends and drag them freely.</li>
+                <li><strong>Options:</strong> Click any bend dot to open the Circuit & K-Map options menu.</li>
+                <li><strong>Test:</strong> Click switches to toggle HIGH (1) / LOW (0) and trace signals live!</li>
+              </ul>
             </div>
           </div>
 
-          <!-- Section 2: Quick Palette & Gates -->
-          <div class="section-title" style="margin-top: 16px;">
-            <span>⚡</span> Quick Add Components
-          </div>
-          <div class="custom-palette-grid">
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="SWITCH"><span>🔘</span> + Switch</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="PROBE"><span>💡</span> + Probe</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="AND"><span>·</span> + AND (74LS08)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="OR"><span>+</span> + OR (74LS32)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="NOT"><span>'</span> + NOT (74LS04)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="NAND"><span>⊼</span> + NAND (74LS00)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="NOR"><span>⊽</span> + NOR (74LS02)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="XOR"><span>⊕</span> + XOR (74LS86)</button>
-            <button class="btn btn-outline btn-sm btn-custom-add" data-add="XNOR"><span>⊙</span> + XNOR (74LS266)</button>
+          <!-- PANE 2: Custom Expression to Circuit -->
+          <div id="custom-tab-expr" class="custom-tab-pane" style="display: none;">
+            <div class="section-title">
+              <span>⚡</span> Synthesize Circuit from Boolean Expression
+            </div>
+            <div class="custom-expr-builder-card">
+              <div class="form-group" style="margin-bottom: 6px;">
+                <label class="form-label" style="font-size: 11px; margin-bottom: 4px; font-weight: 600;">
+                  <span>Enter Expression to Build on Custom Canvas:</span>
+                </label>
+                <textarea id="custom-expr-tab-input" class="expr-textarea" style="min-height: 52px; font-size: 12px; font-family: monospace; resize: vertical;" placeholder="e.g. Y = (A + B) · C or OUT = A'B + AB'" spellcheck="false"></textarea>
+              </div>
+
+              <!-- Mathematical Operators Helper Palette -->
+              <div class="symbol-helpers" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px;">
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="+">+</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="·">·</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="'">'</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="!">!</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="⊕">⊕</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="⊙">⊙</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert="(">(</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert=")">)</button>
+                <button type="button" class="custom-expr-tab-sym-btn sym-btn" data-insert=";">;</button>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 6px;">
+                <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Synthesis Architecture:</label>
+                <select id="custom-expr-tab-arch-select" class="select-control" style="font-size: 11px; padding: 4px 8px; width: 100%;">
+                  <option value="xor_opt" selected>XOR/XNOR Optimized (Recommended)</option>
+                  <option value="basic">Basic Discrete Gates (AND, OR, NOT)</option>
+                  <option value="nand">Universal NAND Only (7400 TTL)</option>
+                  <option value="nor">Universal NOR Only (7402 TTL)</option>
+                </select>
+              </div>
+
+              <div class="custom-builder-actions-row">
+                <button id="btn-custom-expr-tab-build" class="btn btn-primary btn-sm" style="flex: 1; padding: 8px 6px; font-weight: 600;" title="Synthesize this circuit directly onto Custom Canvas (replaces current design)">
+                  <span>⚡</span> Build on Canvas
+                </button>
+                <button id="btn-custom-expr-tab-append" class="btn btn-outline btn-sm" style="flex: 1; padding: 8px 6px;" title="Append this logic alongside existing custom components without clearing">
+                  <span>➕</span> Add to Canvas
+                </button>
+              </div>
+            </div>
+
+            <div class="section-title" style="margin-top: 14px;">
+              <span>📐</span> Custom Circuit Boolean Logic (Extracted)
+            </div>
+            <div class="custom-logic-card">
+              <span class="lbl-small">Extracted Circuit Logic Equation:</span>
+              <code class="custom-expr-display" id="custom-expr-card-code" style="font-size: 14px; margin: 8px 0;">No active circuit yet</code>
+              <p style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">
+                You can convert this custom circuit into mathematical Expression Mode and synthesize it across all 4 architectures (XOR-optimized, Basic gates, Universal NAND, Universal NOR).
+              </p>
+            </div>
+            <button id="btn-custom-load-synthesize" class="btn btn-primary btn-block" style="width: 100%; padding: 10px; font-weight: bold; margin-top: 10px;">
+              <span>⚡</span> Load into Expression Designer & Synthesize
+            </button>
+            <button id="btn-custom-copy-eq-2" class="btn btn-outline btn-block" style="width: 100%; margin-top: 8px;">
+              <span>📋</span> Copy Boolean Equation
+            </button>
           </div>
 
-          <!-- Section 3: Design Actions -->
-          <div class="section-title" style="margin-top: 16px;">
-            <span>🎯</span> Custom Design Actions
-          </div>
-          <div class="custom-actions-stack">
-            <button id="btn-custom-send-kmap" class="btn btn-outline btn-block" style="width: 100%;" title="Send this custom circuit logic to K-Map Studio for minimization">
-              <span>🗺️</span> Minimize on K-Map
-            </button>
-            <button id="btn-custom-save-design" class="btn btn-outline btn-block" style="width: 100%;" title="Save custom circuit and download as a JSON file (.json)">
-              <span>💾</span> Save & Export (.json)
-            </button>
-            <button id="btn-custom-load-design" class="btn btn-outline btn-block" style="width: 100%;" title="Import and load a custom circuit from a JSON file on your computer">
-              <span>📂</span> Import from File (.json)
-            </button>
-            <button id="btn-custom-restore-storage" class="btn btn-outline btn-block" style="width: 100%;" title="Restore previously saved circuit from browser storage">
-              <span>🔄</span> Restore from Browser
-            </button>
-            <input type="file" id="input-custom-import-file" accept=".json,.circuit" style="display: none;">
-            <button id="btn-custom-clear-canvas" class="btn btn-outline btn-block" style="width: 100%; color: var(--accent-red);" title="Start over with a blank canvas">
-              <span>🧹</span> Clear to Blank Canvas
-            </button>
+          <!-- PANE 3: Custom Truth Table -->
+          <div id="custom-tab-truth" class="custom-tab-pane" style="display: none;">
+            <div class="section-title">
+              <span>📊</span> Custom Circuit Truth Table
+            </div>
+            <div id="custom-truth-table-view">
+              <div class="custom-empty-notice" style="padding: 24px; text-align: center; color: var(--text-dim);">
+                <span style="font-size: 28px; display: block; margin-bottom: 8px;">📊</span>
+                <strong>No complete circuit detected yet</strong><br>
+                <span style="font-size: 12px;">Connect input switches through logic gates to an output probe to generate the live Truth Table.</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Section 4: Wiring & Bending Tips -->
-          <div class="section-title" style="margin-top: 16px;">
-            <span>💡</span> Self-Build Guide & Tips
-          </div>
-          <div class="custom-guide-card">
-            <ul>
-              <li><strong>Connect:</strong> Click an output port (circle), then click an input port to wire.</li>
-              <li><strong>Bend Wires:</strong> Click anywhere on a wire to add a bend dot. Add N bends and drag them freely.</li>
-              <li><strong>Options:</strong> Click any bend dot to open the Circuit & K-Map options menu.</li>
-              <li><strong>Test:</strong> Click switches to toggle HIGH (1) / LOW (0) and trace signals live!</li>
-            </ul>
+          <!-- PANE 4: Custom How It Works -->
+          <div id="custom-tab-how" class="custom-tab-pane" style="display: none;">
+            <div class="section-title">
+              <span>💡</span> Custom Circuit How It Works
+            </div>
+            <div id="custom-learning-content">
+              <div class="custom-empty-notice" style="padding: 24px; text-align: center; color: var(--text-dim);">
+                <span style="font-size: 28px; display: block; margin-bottom: 8px;">💡</span>
+                <strong>Awaiting custom circuit design</strong><br>
+                <span style="font-size: 12px;">Wire your switches and gates to an output probe to see the step-by-step logic and gate analysis.</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -3893,6 +4222,7 @@ body.kmap-fullscreen-active {
             <span class="banner-text"><strong>Custom Build Mode Active:</strong> You are building your own circuit. Standard circuits are decoupled and will not overwrite your design.</span>
           </div>
           <div class="banner-actions">
+            <button id="btn-banner-build-expr" class="btn btn-outline btn-sm" title="Synthesize circuit directly from Boolean expression onto Custom Canvas">⚡ Build from Expression</button>
             <button id="btn-banner-clear" class="btn btn-outline btn-sm" title="Clear to blank slate">🧹 Clear Blank</button>
             <button id="btn-banner-kmap" class="btn btn-outline btn-sm" title="Analyze in K-Map">🗺️ Send to K-Map</button>
           </div>
@@ -6933,6 +7263,10 @@ body.kmap-fullscreen-active {
       }
     }
 
+    save() {
+      this.saveSettings();
+    }
+
     loadProfile() {
       try {
         const saved = localStorage.getItem(PROFILE_KEY);
@@ -7437,9 +7771,15 @@ body.kmap-fullscreen-active {
         const current = (this.showPinLabels !== undefined) ? this.showPinLabels : (window.App?.settings?.settings?.showPinLabels !== false);
         this.showPinLabels = !current;
       }
-      if (window.App?.settings?.settings) {
-        window.App.settings.settings.showPinLabels = this.showPinLabels;
-        window.App.settings.save();
+      if (window.App?.settings) {
+        if (window.App.settings.settings) {
+          window.App.settings.settings.showPinLabels = this.showPinLabels;
+        }
+        if (typeof window.App.settings.saveSettings === 'function') {
+          window.App.settings.saveSettings();
+        } else if (typeof window.App.settings.save === 'function') {
+          window.App.settings.save();
+        }
       }
       this.requestRedraw();
       return this.showPinLabels;
@@ -7624,7 +7964,37 @@ body.kmap-fullscreen-active {
       c.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         const mouse = this.screenToWorld(e.clientX, e.clientY);
-        // Right-click on a waypoint handle removes it
+
+        // 1. Right-click on a Component to edit name notation (SWITCH, PROBE, NOTE, TAG)
+        const comp = this.circuit.findComponentAt(mouse.x, mouse.y);
+        if (comp) {
+          if (comp.type === 'SWITCH') {
+            this.editSwitchNotation(comp);
+            return;
+          } else if (comp.type === 'PROBE') {
+            this.editProbeNotation(comp);
+            return;
+          } else if (comp.type === 'STICKY_NOTE') {
+            const newText = prompt('Edit Sticky Note Text:', comp.noteText || '');
+            if (newText !== null) {
+              comp.noteText = newText.trim();
+              this.circuit.notifyChange();
+              this.requestRedraw();
+            }
+            return;
+          } else if (comp.type === 'NOTATION_TAG') {
+            const newText = prompt('Edit Notation Indicator Tag:', comp.tagText || '');
+            if (newText !== null) {
+              comp.tagText = newText.trim();
+              comp.width = Math.max(54, comp.tagText.length * 8 + 24);
+              this.circuit.notifyChange();
+              this.requestRedraw();
+            }
+            return;
+          }
+        }
+
+        // 2. Right-click on a waypoint handle removes it
         for (const wire of this.circuit.wires) {
           if (wire.waypoints && wire.waypoints.length > 0) {
             for (let i = 0; i < wire.waypoints.length; i++) {
@@ -7718,6 +8088,67 @@ body.kmap-fullscreen-active {
           this.circuit.notifyChange();
           this.requestRedraw();
         }
+      } else if (comp && comp.type === 'SWITCH') {
+        this.editSwitchNotation(comp);
+      } else if (comp && comp.type === 'PROBE') {
+        this.editProbeNotation(comp);
+      }
+    }
+
+    editSwitchNotation(comp) {
+      if (!comp) return;
+      const current = comp.label || comp.id || 'IN';
+      const entered = prompt('Edit Input Switch Name / Notation:', current);
+      if (entered === null) return;
+      const clean = entered.trim();
+      if (!clean) return;
+
+      const oldName = comp.label || comp.id;
+      comp.label = clean;
+
+      // Update signal labels across ports that carried the old name
+      this.circuit.components.forEach(c => {
+        c.inputs?.forEach(inp => {
+          if (inp.signalLabel === oldName) {
+            inp.signalLabel = clean;
+          }
+        });
+      });
+
+      this.circuit.simulate();
+      this.circuit.notifyChange();
+      this.requestRedraw();
+
+      if (window.App) {
+        if (window.App.workspaceMode === 'custom') {
+          window.App.updateCustomCircuitStats();
+        } else {
+          if (window.App.currentVariables) {
+            const idx = window.App.currentVariables.indexOf(oldName);
+            if (idx !== -1) {
+              window.App.currentVariables[idx] = clean;
+            }
+          }
+          window.App.updateLiveOutputs();
+        }
+      }
+    }
+
+    editProbeNotation(comp) {
+      if (!comp) return;
+      const current = comp.label || comp.id || 'OUT';
+      const entered = prompt('Edit Output Probe Name / Notation:', current);
+      if (entered === null) return;
+      const clean = entered.trim();
+      if (!clean) return;
+
+      comp.label = clean;
+      this.circuit.simulate();
+      this.circuit.notifyChange();
+      this.requestRedraw();
+
+      if (window.App && window.App.workspaceMode === 'custom') {
+        window.App.updateCustomCircuitStats();
       }
     }
 
@@ -7728,10 +8159,22 @@ body.kmap-fullscreen-active {
       if (this.placementType && e.button === 0) {
         const snapX = Math.round(mouse.x / 10) * 10;
         const snapY = Math.round(mouse.y / 10) * 10;
-        const defaultLabel = this.placementType === 'SWITCH' ? 'IN' :
-          (this.placementType === 'PROBE' ? 'OUT' :
-          (this.placementType === 'STICKY_NOTE' ? 'Note: Add your explanation' :
-          (this.placementType === 'NOTATION_TAG' ? 'Tag' : '')));
+
+        let defaultLabel = 'IN';
+        if (this.placementType === 'SWITCH') {
+          const existingLabels = new Set();
+          this.circuit.components.forEach(c => {
+            if (c.type === 'SWITCH') existingLabels.add((c.label || c.id || '').toUpperCase());
+          });
+          const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+          defaultLabel = alphabet.find(ch => !existingLabels.has(ch)) || `IN${existingLabels.size + 1}`;
+        } else if (this.placementType === 'PROBE') {
+          defaultLabel = 'OUT';
+        } else if (this.placementType === 'STICKY_NOTE') {
+          defaultLabel = 'Note: Add your explanation';
+        } else if (this.placementType === 'NOTATION_TAG') {
+          defaultLabel = 'Tag';
+        }
 
         const comp = new window.CircuitSimulator.Component(
           this.circuit.generateId(`comp_${this.placementType.toLowerCase()}`),
@@ -9191,12 +9634,11 @@ body.kmap-fullscreen-active {
       ctx.textBaseline = 'middle';
       ctx.fillText(isHigh ? '1' : '0', toggleX + toggleW / 2, toggleY + toggleH / 2);
 
-      if (comp.label) {
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 13px system-ui, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(comp.label, 8, -8);
-      }
+      const labelText = comp.label || comp.id || 'IN';
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 13px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(labelText, 8, -8);
     }
 
     drawProbe(ctx, comp) {
@@ -11407,8 +11849,8 @@ body.kmap-fullscreen-active {
         });
       });
 
-      // Symbol Helper Buttons
-      const helperBtns = document.querySelectorAll('.sym-btn');
+      // Symbol Helper Buttons (Scoped to Circuit Expression Panel)
+      const helperBtns = document.querySelectorAll('#sidebar-circuit-panel .sym-btn');
       helperBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           const insertText = btn.getAttribute('data-insert');
@@ -11643,14 +12085,23 @@ body.kmap-fullscreen-active {
       const btnToggleLabels = document.getElementById('btn-toggle-labels');
       this.updateLabelButtonUI = (isOn) => {
         if (!btnToggleLabels) return;
+        const textSpan = document.getElementById('label-toggle-text') || btnToggleLabels.querySelector('span:last-child');
         if (isOn) {
           btnToggleLabels.classList.add('active');
           btnToggleLabels.title = 'Click to Hide Boolean Expression Badges on Circuit Ports';
-          btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span>Expressions: ON</span>';
+          if (textSpan) {
+            textSpan.textContent = 'Expressions: ON';
+          } else {
+            btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span id="label-toggle-text">Expressions: ON</span>';
+          }
         } else {
           btnToggleLabels.classList.remove('active');
           btnToggleLabels.title = 'Click to Show Boolean Expression Badges on Circuit Ports';
-          btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span>Expressions: OFF</span>';
+          if (textSpan) {
+            textSpan.textContent = 'Expressions: OFF';
+          } else {
+            btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span id="label-toggle-text">Expressions: OFF</span>';
+          }
         }
       };
 
@@ -11659,8 +12110,16 @@ body.kmap-fullscreen-active {
       this.updateLabelButtonUI(initialLabelsState);
 
       btnToggleLabels?.addEventListener('click', () => {
-        const nextState = this.canvas.togglePinLabels();
+        let nextState;
+        try {
+          nextState = this.canvas.togglePinLabels();
+        } catch (err) {
+          console.warn('Fallback toggling pin labels:', err);
+          this.canvas.showPinLabels = !this.canvas.showPinLabels;
+          nextState = this.canvas.showPinLabels;
+        }
         this.updateLabelButtonUI(nextState);
+        this.canvas.requestRedraw();
       });
 
       // Trace Mode Toggle Button
@@ -11868,6 +12327,208 @@ body.kmap-fullscreen-active {
         });
       });
 
+      // Custom Studio Sidebar Tabs Switcher
+      const customTabBtns = document.querySelectorAll('.custom-tab-btn');
+      const switchCustomTab = (targetId) => {
+        customTabBtns.forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-custom-tab') === targetId);
+        });
+        document.querySelectorAll('.custom-tab-pane').forEach(p => {
+          const isActive = (p.id === targetId);
+          p.style.display = isActive ? 'flex' : 'none';
+          p.classList.toggle('active', isActive);
+        });
+        this.updateCustomCircuitStats();
+      };
+
+      customTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-custom-tab');
+          if (targetId) switchCustomTab(targetId);
+        });
+      });
+
+      // Custom Action Buttons: jump directly to corresponding custom tabs
+      document.getElementById('btn-custom-action-truth')?.addEventListener('click', () => {
+        switchCustomTab('custom-tab-truth');
+      });
+      document.getElementById('btn-custom-action-how')?.addEventListener('click', () => {
+        switchCustomTab('custom-tab-how');
+      });
+      document.getElementById('btn-custom-action-expr')?.addEventListener('click', () => {
+        switchCustomTab('custom-tab-expr');
+      });
+
+      // Load custom logic into Expression Designer & synthesize
+      const loadCustomIntoExpressionDesigner = () => {
+        const stats = this.extractCustomCircuitLogic();
+        if (!stats || !stats.expr || stats.expr.includes('No active gates') || stats.expr.includes('Not Connected') || stats.expr.includes('Place gates')) {
+          alert('Please wire at least one gate from input switches to an output probe before synthesizing.');
+          return;
+        }
+        const exprInput = document.getElementById('expr-input');
+        if (exprInput) {
+          exprInput.value = stats.expr;
+        }
+        this.switchWorkspaceMode('circuit');
+        this.generateCircuit();
+      };
+
+      document.getElementById('btn-custom-load-synthesize')?.addEventListener('click', loadCustomIntoExpressionDesigner);
+      document.getElementById('btn-custom-copy-eq-2')?.addEventListener('click', () => {
+        const stats = this.extractCustomCircuitLogic();
+        if (stats && stats.expr && navigator.clipboard) {
+          navigator.clipboard.writeText(stats.expr);
+        }
+      });
+
+      // Custom Circuit Build from Boolean Expression Controls
+      const customBuilderExprInput = document.getElementById('custom-builder-expr-input');
+      const customBuilderArchSelect = document.getElementById('custom-builder-arch-select');
+      const customBuilderExampleSelect = document.getElementById('custom-builder-example-select');
+      const customExprTabInput = document.getElementById('custom-expr-tab-input');
+      const customExprTabArchSelect = document.getElementById('custom-expr-tab-arch-select');
+
+      // Keep builder input and expression tab input in sync
+      if (customBuilderExprInput && customExprTabInput) {
+        customBuilderExprInput.addEventListener('input', () => {
+          customExprTabInput.value = customBuilderExprInput.value;
+        });
+        customExprTabInput.addEventListener('input', () => {
+          customBuilderExprInput.value = customExprTabInput.value;
+        });
+      }
+
+      // Keep architecture selects in sync
+      if (customBuilderArchSelect && customExprTabArchSelect) {
+        customBuilderArchSelect.addEventListener('change', () => {
+          customExprTabArchSelect.value = customBuilderArchSelect.value;
+        });
+        customExprTabArchSelect.addEventListener('change', () => {
+          customBuilderArchSelect.value = customExprTabArchSelect.value;
+        });
+      }
+
+      // Example select listener
+      customBuilderExampleSelect?.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val) {
+          if (customBuilderExprInput) customBuilderExprInput.value = val;
+          if (customExprTabInput) customExprTabInput.value = val;
+          customBuilderExprInput?.focus();
+        }
+      });
+
+      // Symbol helper buttons for custom builder
+      const attachSymbolButtons = (selector, targetInputGetter) => {
+        document.querySelectorAll(selector).forEach(btn => {
+          btn.addEventListener('click', () => {
+            const char = btn.getAttribute('data-insert');
+            const targetInput = targetInputGetter();
+            if (char && targetInput) {
+              const start = targetInput.selectionStart || 0;
+              const end = targetInput.selectionEnd || 0;
+              const val = targetInput.value;
+              targetInput.value = val.substring(0, start) + char + val.substring(end);
+              targetInput.selectionStart = targetInput.selectionEnd = start + char.length;
+              targetInput.focus();
+              if (targetInput === customBuilderExprInput && customExprTabInput) {
+                customExprTabInput.value = targetInput.value;
+              } else if (targetInput === customExprTabInput && customBuilderExprInput) {
+                customBuilderExprInput.value = targetInput.value;
+              }
+            }
+          });
+        });
+      };
+      attachSymbolButtons('.custom-builder-sym-btn', () => customBuilderExprInput);
+      attachSymbolButtons('.custom-expr-tab-sym-btn', () => customExprTabInput);
+
+      // Handler for Build (Replace / Fresh)
+      const triggerCustomBuild = (inputEl, archEl, flashBtnId) => {
+        const expr = (inputEl?.value || customBuilderExprInput?.value || '').trim();
+        if (!expr) {
+          alert('Please enter a Boolean expression to build (e.g. Y = (A + B) · C or OUT = A\'B + AB\').');
+          inputEl?.focus();
+          return;
+        }
+        const arch = archEl?.value || customBuilderArchSelect?.value || 'xor_opt';
+        const success = this.buildCustomCircuitFromExpression(expr, arch, false);
+        if (success) {
+          const btn = document.getElementById(flashBtnId);
+          if (btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '⚡ Built on Canvas!';
+            btn.classList.add('btn-success-flash');
+            setTimeout(() => {
+              btn.innerHTML = orig;
+              btn.classList.remove('btn-success-flash');
+            }, 1500);
+          }
+        }
+      };
+
+      // Handler for Append (Add to existing canvas)
+      const triggerCustomAppend = (inputEl, archEl, flashBtnId) => {
+        const expr = (inputEl?.value || customBuilderExprInput?.value || '').trim();
+        if (!expr) {
+          alert('Please enter a Boolean expression to add (e.g. Y = (A + B) · C).');
+          inputEl?.focus();
+          return;
+        }
+        const arch = archEl?.value || customBuilderArchSelect?.value || 'xor_opt';
+        const success = this.buildCustomCircuitFromExpression(expr, arch, true);
+        if (success) {
+          const btn = document.getElementById(flashBtnId);
+          if (btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '➕ Added to Canvas!';
+            btn.classList.add('btn-success-flash');
+            setTimeout(() => {
+              btn.innerHTML = orig;
+              btn.classList.remove('btn-success-flash');
+            }, 1500);
+          }
+        }
+      };
+
+      // Button listeners for builder tab
+      document.getElementById('btn-custom-build-from-expr')?.addEventListener('click', () => {
+        triggerCustomBuild(customBuilderExprInput, customBuilderArchSelect, 'btn-custom-build-from-expr');
+      });
+      document.getElementById('btn-custom-append-from-expr')?.addEventListener('click', () => {
+        triggerCustomAppend(customBuilderExprInput, customBuilderArchSelect, 'btn-custom-append-from-expr');
+      });
+
+      // Button listeners for expr tab
+      document.getElementById('btn-custom-expr-tab-build')?.addEventListener('click', () => {
+        triggerCustomBuild(customExprTabInput, customExprTabArchSelect, 'btn-custom-expr-tab-build');
+      });
+      document.getElementById('btn-custom-expr-tab-append')?.addEventListener('click', () => {
+        triggerCustomAppend(customExprTabInput, customExprTabArchSelect, 'btn-custom-expr-tab-append');
+      });
+
+      // Top banner button
+      document.getElementById('btn-banner-build-expr')?.addEventListener('click', () => {
+        switchCustomTab('custom-tab-builder');
+        customBuilderExprInput?.focus();
+        customBuilderExprInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      // Keyboard shortcuts (Ctrl+Enter / Cmd+Enter inside textareas)
+      const handleCtrlEnter = (e, inputEl, archEl, btnId) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          triggerCustomBuild(inputEl, archEl, btnId);
+        }
+      };
+      customBuilderExprInput?.addEventListener('keydown', (e) => {
+        handleCtrlEnter(e, customBuilderExprInput, customBuilderArchSelect, 'btn-custom-build-from-expr');
+      });
+      customExprTabInput?.addEventListener('keydown', (e) => {
+        handleCtrlEnter(e, customExprTabInput, customExprTabArchSelect, 'btn-custom-expr-tab-build');
+      });
+
       // K-Map Creation Studio Sidebar Controls
       const kmapEqInput = document.getElementById('kmap-equation-input');
       document.getElementById('btn-kmap-draw-equation')?.addEventListener('click', () => {
@@ -12060,6 +12721,10 @@ body.kmap-fullscreen-active {
             this.kmapUI.toggleFullscreen(false);
           }
 
+          if (tabTarget === 'tab-truth-table') {
+            this.updateLiveOutputs();
+          }
+
           if (tabTarget === 'tab-kmap' && this.kmapUI) {
             this.kmapUI.update(
               this.currentStatements,
@@ -12107,10 +12772,12 @@ body.kmap-fullscreen-active {
      */
     analyzeExpression() {
       const errorBox = document.getElementById('syntax-error-box');
-      errorBox.style.display = 'none';
-      errorBox.innerHTML = '';
+      if (errorBox) {
+        errorBox.style.display = 'none';
+        errorBox.innerHTML = '';
+      }
 
-      const exprInput = document.getElementById('expr-input').value.trim();
+      const exprInput = document.getElementById('expr-input')?.value?.trim();
       if (!exprInput) {
         this.showError('Expression cannot be empty. Please enter an expression like Y = A AND B.');
         return false;
@@ -12208,6 +12875,30 @@ body.kmap-fullscreen-active {
         this.circuit = synthResult.circuit;
         this.circuit.setWireStyle(this.canvas.wireStyle);
         this.canvas.setCircuit(this.circuit);
+
+        // Subscribe to newly synthesized circuit to trace switches live across Truth Table, Learning Mode & K-Map
+        this.circuit.subscribe(() => {
+          this.updateLiveOutputs();
+          if (this.workspaceMode === 'custom') {
+            this.updateCustomCircuitStats();
+          }
+          if (this.learningMode) {
+            this.learningMode.update(
+              this.currentStatements,
+              this.currentTokens,
+              this.circuit,
+              this.currentVariables,
+              this.currentMode
+            );
+          }
+          if (this.kmapUI) {
+            this.kmapUI.update(
+              this.currentStatements,
+              this.currentVariables,
+              this.circuit
+            );
+          }
+        });
 
         // Ensure canvas sizing is up to date and center the schematic
         setTimeout(() => {
@@ -12417,23 +13108,48 @@ body.kmap-fullscreen-active {
 
       const tt = LogicOptimizer.generateTruthTable(statements, allVars);
 
+      // Determine initial active index from current switches
+      const currentEnv = {};
+      allVars.forEach(v => {
+        if (this.circuit) {
+          for (const comp of this.circuit.components.values()) {
+            if (comp.type === 'SWITCH' && (comp.id === v || comp.label === v || comp.id === `sw_${v}`)) {
+              currentEnv[v] = comp.state === window.CircuitSimulator?.LogicState.HIGH ? 1 : (comp.state ? 1 : 0);
+              break;
+            }
+          }
+        }
+      });
+      let activeIndex = 0;
+      for (let v = 0; v < allVars.length; v++) {
+        if (currentEnv[allVars[v]]) {
+          activeIndex |= (1 << (allVars.length - 1 - v));
+        }
+      }
+      const activeInputsText = allVars.map(v => `${v}=${currentEnv[v] ? 1 : 0}`).join(', ');
+
       container.innerHTML = `
         <div class="tt-header">
-          <h5>Exhaustive Truth Table (${tt.rows.length} Input Combinations)</h5>
-          <span class="tt-sub">Values dynamically match the Boolean specification.</span>
+          <div class="tt-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <h5 style="margin: 0; font-size: 13px;">Exhaustive Truth Table (${tt.rows.length} Rows)</h5>
+            <span class="badge" id="tt-active-input-badge" style="background: rgba(6, 182, 212, 0.2); border: 1px solid #06b6d4; color: #38bdf8; font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 600;">
+              Active Input: <strong>Row #${activeIndex}</strong> (${activeInputsText})
+            </span>
+          </div>
+          <span class="tt-sub">⚡ Click any row to test inputs on schematic • Live row traces switch toggles</span>
         </div>
         <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
           <table class="truth-table">
             <thead>
               <tr>
-                <th class="th-state">#</th>
-                ${allVars.map(v => `<th class="th-in">${v}</th>`).join('')}
-                ${statements.map(s => `<th class="th-out">${s.outputName}</th>`).join('')}
+                <th class="th-state" title="State Index (Minterm #)">#</th>
+                ${allVars.map(v => `<th class="th-in" title="Input Variable ${v}">${v}</th>`).join('')}
+                ${statements.map(s => `<th class="th-out" title="Output ${s.outputName}">${s.outputName}</th>`).join('')}
               </tr>
             </thead>
             <tbody>
               ${tt.rows.map(r => `
-                <tr id="tt-row-${r.index}">
+                <tr id="tt-row-${r.index}" class="${r.index === activeIndex ? 'row-active' : ''}" data-row-index="${r.index}" title="Click to apply input state #${r.index} (${allVars.map(v => `${v}=${r.inputs[v]}`).join(', ')}) to circuit switches">
                   <td class="td-state">${r.index}</td>
                   ${allVars.map(v => `<td class="td-val ${r.inputs[v] ? 'val-1' : 'val-0'}">${r.inputs[v]}</td>`).join('')}
                   ${statements.map(s => `<td class="td-out ${r.outputs[s.outputName] ? 'out-1' : 'out-0'}"><strong>${r.outputs[s.outputName]}</strong></td>`).join('')}
@@ -12443,15 +13159,53 @@ body.kmap-fullscreen-active {
           </table>
         </div>
       `;
+
+      // Allow clicking any row in the truth table to set switch inputs on the circuit
+      if (typeof container.querySelectorAll === 'function') {
+        container.querySelectorAll('.truth-table tbody tr[data-row-index]').forEach(rowEl => {
+          rowEl.addEventListener('click', () => {
+            const rIdx = parseInt(rowEl.getAttribute('data-row-index'), 10);
+            const rowData = tt.rows[rIdx];
+            if (rowData && rowData.inputs) {
+              this.applyInputsToCircuit(rowData.inputs);
+            }
+          });
+        });
+      }
+    }
+
+    updateLabelButtonUI(isOn) {
+      const btnToggleLabels = document.getElementById('btn-toggle-labels');
+      if (!btnToggleLabels) return;
+      const textSpan = document.getElementById('label-toggle-text') || btnToggleLabels.querySelector('span:last-child');
+      if (isOn) {
+        btnToggleLabels.classList.add('active');
+        btnToggleLabels.title = 'Click to Hide Boolean Expression Badges on Circuit Ports';
+        if (textSpan) {
+          textSpan.textContent = 'Expressions: ON';
+        } else {
+          btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span id="label-toggle-text">Expressions: ON</span>';
+        }
+      } else {
+        btnToggleLabels.classList.remove('active');
+        btnToggleLabels.title = 'Click to Show Boolean Expression Badges on Circuit Ports';
+        if (textSpan) {
+          textSpan.textContent = 'Expressions: OFF';
+        } else {
+          btnToggleLabels.innerHTML = '<span class="btn-icon">🔤</span> <span id="label-toggle-text">Expressions: OFF</span>';
+        }
+      }
     }
 
     updateLiveOutputs() {
       const currentEnv = {};
       this.currentVariables.forEach(v => {
-        for (const comp of this.circuit.components.values()) {
-          if (comp.type === 'SWITCH' && (comp.id === v || comp.label === v)) {
-            currentEnv[v] = comp.state;
-            break;
+        if (this.circuit) {
+          for (const comp of this.circuit.components.values()) {
+            if (comp.type === 'SWITCH' && (comp.id === v || comp.label === v || comp.id === `sw_${v}`)) {
+              currentEnv[v] = comp.state === window.CircuitSimulator?.LogicState.HIGH ? 1 : (comp.state ? 1 : 0);
+              break;
+            }
           }
         }
       });
@@ -12463,13 +13217,71 @@ body.kmap-fullscreen-active {
         }
       }
 
+      // Highlight active row across all truth table rows
       document.querySelectorAll('.truth-table tr').forEach(r => r.classList.remove('row-active'));
       const activeRowEl = document.getElementById(`tt-row-${activeIndex}`);
       if (activeRowEl) {
         activeRowEl.classList.add('row-active');
+        try {
+          activeRowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } catch (e) {
+          if (activeRowEl.scrollIntoView) activeRowEl.scrollIntoView(false);
+        }
+      }
+
+      // Also highlight custom truth table row if active
+      const customActiveRow = document.getElementById(`custom-tt-row-${activeIndex}`);
+      if (customActiveRow) {
+        customActiveRow.classList.add('row-active');
+        try {
+          customActiveRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } catch (e) {
+          if (customActiveRow.scrollIntoView) customActiveRow.scrollIntoView(false);
+        }
+      }
+
+      // Update active input badge in Truth Table header
+      const ttBadge = document.getElementById('tt-active-input-badge');
+      if (ttBadge) {
+        const inputStateStr = this.currentVariables.map(v => `${v}=${currentEnv[v] ? 1 : 0}`).join(', ');
+        ttBadge.innerHTML = `Active Input: <strong>Row #${activeIndex}</strong> (${inputStateStr})`;
+        ttBadge.classList.add('badge-highlight');
+        setTimeout(() => ttBadge.classList.remove('badge-highlight'), 400);
       }
 
       this.updateCircuitFooter();
+    }
+
+    /**
+     * Apply a set of input variable values to the active circuit switches
+     * @param {Object} inputs - Key-value map of variable names to 0/1 values (e.g. { A: 1, B: 0, C: 1 })
+     */
+    applyInputsToCircuit(inputs) {
+      if (!this.circuit || !inputs) return;
+      const LogicState = window.CircuitSimulator?.LogicState || { HIGH: 1, LOW: 0 };
+
+      let changed = false;
+      Object.keys(inputs).forEach(varName => {
+        const targetVal = inputs[varName] ? LogicState.HIGH : LogicState.LOW;
+        for (const comp of this.circuit.components.values()) {
+          if (comp.type === 'SWITCH' && (comp.label === varName || comp.id === varName || comp.id === `sw_${varName}`)) {
+            if (comp.state !== targetVal) {
+              comp.state = targetVal;
+              changed = true;
+            }
+            break;
+          }
+        }
+      });
+
+      if (changed) {
+        if (window.App?.settings?.playClickSound) {
+          window.App.settings.playClickSound();
+        }
+        this.circuit.simulate();
+        this.circuit.notifyChange();
+        this.canvas?.requestRedraw();
+      }
     }
 
     /**
@@ -12940,10 +13752,142 @@ body.kmap-fullscreen-active {
       return true;
     }
 
+    /**
+     * Synthesize and build a complete interactive circuit directly onto Custom Canvas
+     * from any Boolean expression across any of the 4 synthesis architectures.
+     * @param {string} exprText - Boolean logic expression
+     * @param {string} mode - 'xor_opt' | 'basic' | 'nand' | 'nor'
+     * @param {boolean} isAppend - true to add alongside existing components, false to replace
+     */
+    buildCustomCircuitFromExpression(exprText, mode = 'xor_opt', isAppend = false) {
+      if (!exprText || typeof exprText !== 'string' || !exprText.trim()) {
+        return false;
+      }
+
+      try {
+        const raw = exprText.trim();
+        const LexerClass = window.BooleanAST?.Lexer || global.BooleanAST?.Lexer;
+        const ParserClass = window.BooleanAST?.Parser || global.BooleanAST?.Parser;
+        const SynthesizerClass = window.CircuitSynthesizer || global.CircuitSynthesizer || (typeof CircuitSynthesizer !== 'undefined' ? CircuitSynthesizer : null);
+
+        if (!LexerClass || !ParserClass || !SynthesizerClass) {
+          throw new Error('Circuit synthesis components not loaded');
+        }
+
+        // 1. Tokenize expression
+        const lexer = new LexerClass(raw);
+        const tokens = lexer.tokenize();
+
+        // 2. Parse AST statements
+        const parser = new ParserClass(tokens, raw, lexer.declaredInputs);
+        const statements = parser.parseAllStatements();
+
+        // 3. Extract all input variables
+        const varSet = new Set();
+        statements.forEach(stmt => stmt.ast.getVariables(varSet));
+        if (lexer.declaredInputs && Array.isArray(lexer.declaredInputs)) {
+          lexer.declaredInputs.forEach(v => varSet.add(v));
+        }
+        const allVars = Array.from(varSet).sort((a, b) =>
+          a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+        );
+
+        // 4. Synthesize circuit using selected architecture
+        const synthResult = SynthesizerClass.synthesize(statements, mode, allVars);
+        if (!synthResult || !synthResult.circuit) {
+          throw new Error('Synthesis failed: could not build circuit');
+        }
+
+        // 5. Ensure Custom workspace mode is active
+        if (this.workspaceMode !== 'custom') {
+          this.switchWorkspaceMode('custom');
+        }
+
+        // 6. Handle Replace vs Append
+        if (!isAppend || !this.customCircuit || this.customCircuit.components.size === 0) {
+          // Replace Mode: set synthesized circuit as active custom circuit
+          this.customCircuit = synthResult.circuit;
+          this.customCircuit.subscribe(() => {
+            if (this.workspaceMode === 'custom') {
+              this.updateCustomCircuitStats();
+            }
+          });
+          if (this.canvas?.wireStyle) {
+            this.customCircuit.setWireStyle(this.canvas.wireStyle);
+          }
+          this.circuit = this.customCircuit;
+          this.canvas?.setCircuit(this.customCircuit);
+        } else {
+          // Append Mode: offset new components to the right of existing components
+          let maxX = 0;
+          for (const comp of this.customCircuit.components.values()) {
+            const right = (comp.x || 0) + (comp.width || 80);
+            if (right > maxX) maxX = right;
+          }
+          const xOffset = maxX > 0 ? maxX + 100 : 0;
+
+          // Add synthesized components with unique IDs
+          for (const comp of synthResult.circuit.components.values()) {
+            let newId = comp.id;
+            if (this.customCircuit.components.has(newId)) {
+              let counter = 2;
+              while (this.customCircuit.components.has(`${newId}_${counter}`)) counter++;
+              newId = `${newId}_${counter}`;
+            }
+            comp.id = newId;
+            comp.x = (comp.x || 0) + xOffset;
+            this.customCircuit.addComponent(comp);
+          }
+
+          // Add synthesized wires with shifted bend coordinates
+          for (const wire of synthResult.circuit.wires) {
+            if (wire.waypoints && Array.isArray(wire.waypoints)) {
+              wire.waypoints.forEach(wp => {
+                wp.x = (wp.x || 0) + xOffset;
+              });
+            }
+            if (wire.channelX) {
+              wire.channelX += xOffset;
+            }
+            wire.id = this.customCircuit.generateId 
+              ? this.customCircuit.generateId('wire') 
+              : `wire_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            this.customCircuit.wires.push(wire);
+          }
+
+          this.customCircuit.simulate();
+          this.customCircuit.notifyChange();
+        }
+
+        // 7. Update custom logic stats, expression labels & UI
+        this.updateCustomCircuitStats();
+        this.propagateCustomCircuitExpressionLabels();
+        this.updateCircuitFooter();
+
+        // 8. Auto-fit to screen smoothly
+        if (this.canvas) {
+          this.canvas.handleResize();
+          this.canvas.zoomToFit();
+          this.canvas.requestRedraw();
+        }
+
+        return true;
+      } catch (err) {
+        console.error('Error building circuit from Boolean expression in custom mode:', err);
+        if (typeof alert === 'function') {
+          alert(`Invalid Boolean Expression: ${err.message}`);
+        }
+        return false;
+      }
+    }
+
     updateCustomCircuitStats() {
       const stats = this.extractCustomCircuitLogic();
       const exprEl = document.getElementById('custom-extracted-expr');
       if (exprEl) exprEl.textContent = stats.expr;
+
+      const exprCardCode = document.getElementById('custom-expr-card-code');
+      if (exprCardCode) exprCardCode.textContent = stats.expr;
 
       const inEl = document.getElementById('custom-stat-inputs');
       if (inEl) inEl.textContent = `Inputs: ${stats.inputs.length}`;
@@ -12961,6 +13905,279 @@ body.kmap-fullscreen-active {
       if (footerExpr && this.workspaceMode === 'custom') {
         footerExpr.textContent = stats.expr;
       }
+
+      // Propagate Boolean expression badges to all custom circuit ports
+      this.propagateCustomCircuitExpressionLabels();
+
+      // Update custom circuit Truth Table and How It Works views
+      this.updateCustomCircuitAnalysis(stats);
+    }
+
+    propagateCustomCircuitExpressionLabels() {
+      const circuit = this.customCircuit || this.circuit;
+      if (!circuit || this.workspaceMode !== 'custom') return;
+
+      const getConnectedWire = (port) => {
+        if (!port) return null;
+        return circuit.wires.find(w => 
+          (w.targetPort && (w.targetPort === port || w.targetPort.id === port.id)) ||
+          (w.sourcePort && (w.sourcePort === port || w.sourcePort.id === port.id))
+        );
+      };
+
+      const getOppositePort = (wire, port) => {
+        if (!wire || !port) return null;
+        if (wire.targetPort === port || (wire.targetPort && wire.targetPort.id === port.id)) {
+          return wire.sourcePort;
+        }
+        return wire.targetPort;
+      };
+
+      const getExpr = (port, visited = new Set()) => {
+        if (!port) return '';
+        const comp = port.component;
+        if (!comp) return '';
+        if (comp.type === 'SWITCH') return comp.label || comp.id || 'IN';
+
+        if (port.type === PortType.INPUT) {
+          const wire = getConnectedWire(port);
+          if (!wire) return '';
+          const driver = getOppositePort(wire, port);
+          return driver ? getExpr(driver, visited) : '';
+        }
+
+        if (visited.has(comp.id)) return comp.label || '';
+        const nextVisited = new Set(visited);
+        nextVisited.add(comp.id);
+
+        const baseType = comp.type.replace(/[0-9]/g, '');
+        const inExprs = (comp.inputs || []).map(inp => {
+          const wire = getConnectedWire(inp);
+          if (!wire) return '';
+          const driver = getOppositePort(wire, inp);
+          return driver ? getExpr(driver, nextVisited) : '';
+        });
+
+        if (inExprs.some(e => !e)) return '';
+
+        if (baseType === 'NOT') {
+          const inner = inExprs[0];
+          return inner.length > 1 ? `(${inner})'` : `${inner}'`;
+        }
+        if (baseType === 'AND') {
+          return inExprs.map(e => e.includes('+') || e.includes('⊕') ? `(${e})` : e).join(' · ');
+        }
+        if (baseType === 'OR') {
+          return inExprs.join(' + ');
+        }
+        if (baseType === 'NAND') {
+          const prod = inExprs.map(e => e.includes('+') || e.includes('⊕') ? `(${e})` : e).join(' · ');
+          return `(${prod})'`;
+        }
+        if (baseType === 'NOR') {
+          return `(${inExprs.join(' + ')})'`;
+        }
+        if (baseType === 'XOR') {
+          return inExprs.map(e => e.includes('+') ? `(${e})` : e).join(' ⊕ ');
+        }
+        if (baseType === 'XNOR') {
+          return inExprs.map(e => e.includes('+') ? `(${e})` : e).join(' ⊙ ');
+        }
+        return comp.label || '';
+      };
+
+      circuit.components.forEach(comp => {
+        if (comp.type !== 'SWITCH') {
+          comp.inputs?.forEach(inp => {
+            const label = getExpr(inp);
+            inp.signalLabel = label || '';
+          });
+        }
+      });
+
+      this.canvas?.requestRedraw();
+    }
+
+    updateCustomCircuitAnalysis(stats = null) {
+      if (!stats) stats = this.extractCustomCircuitLogic();
+      if (!stats || !stats.expr || stats.expr.includes('?') || stats.expr.includes('No active') || stats.expr.includes('Not Connected') || stats.expr.includes('Place gates')) {
+        this.renderCustomTruthTable(null, null);
+        this.renderCustomHowItWorks(null, null, null, null);
+        return;
+      }
+
+      try {
+        const lexer = new window.BooleanAST.Lexer(stats.expr);
+        const tokens = lexer.tokenize();
+        const parser = new window.BooleanAST.Parser(tokens, stats.expr);
+        const statements = parser.parseAllStatements();
+
+        const varSet = new Set(stats.inputs);
+        statements.forEach(s => s.ast.getVariables(varSet));
+        const allVars = Array.from(varSet).sort();
+
+        this.renderCustomTruthTable(statements, allVars);
+        this.renderCustomHowItWorks(statements, tokens, this.customCircuit || this.circuit, allVars);
+      } catch (err) {
+        console.warn('Could not parse custom circuit logic for analysis:', err);
+      }
+    }
+
+    renderCustomTruthTable(statements, allVars) {
+      const container = document.getElementById('custom-truth-table-view');
+      if (!container) return;
+
+      if (!statements || statements.length === 0 || !allVars || allVars.length === 0) {
+        container.innerHTML = `
+          <div class="custom-empty-notice" style="padding: 24px; text-align: center; color: var(--text-dim);">
+            <span style="font-size: 28px; display: block; margin-bottom: 8px;">📊</span>
+            <strong>No complete circuit detected yet</strong><br>
+            <span style="font-size: 12px;">Connect input switches through logic gates to an output probe to generate the live Truth Table.</span>
+          </div>
+        `;
+        return;
+      }
+
+      if (allVars.length > 8) {
+        container.innerHTML = `<div class="alert-warn">Truth table generation is limited to 8 input variables (256 rows). Your circuit has ${allVars.length} inputs.</div>`;
+        return;
+      }
+
+      const tt = window.BooleanAST.LogicOptimizer.generateTruthTable(statements, allVars);
+
+      // Current active switch inputs
+      const currentInputs = {};
+      const circuit = this.customCircuit || this.circuit;
+      if (circuit) {
+        allVars.forEach(v => {
+          for (const comp of circuit.components.values()) {
+            if (comp.type === 'SWITCH' && (comp.label === v || comp.id === v)) {
+              currentInputs[v] = comp.state === window.CircuitSimulator.LogicState.HIGH ? 1 : 0;
+              break;
+            }
+          }
+        });
+      }
+
+      container.innerHTML = `
+        <div class="tt-header" style="margin-bottom: 8px;">
+          <h5 style="font-size: 13px; margin: 0;">Dynamic Truth Table (${tt.rows.length} States)</h5>
+          <span class="tt-sub" style="font-size: 11px; color: var(--text-dim);">Evaluated live from custom schematic</span>
+        </div>
+        <div class="table-responsive" style="max-height: 440px; overflow-y: auto;">
+          <table class="truth-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr>
+                <th class="th-state">#</th>
+                ${allVars.map(v => `<th class="th-in">${v}</th>`).join('')}
+                ${statements.map(s => `<th class="th-out">${s.outputName}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${tt.rows.map(r => {
+                const isActiveRow = allVars.every(v => r.inputs[v] === currentInputs[v]);
+                return `
+                  <tr id="custom-tt-row-${r.index}" class="${isActiveRow ? 'row-active' : ''}" data-row-index="${r.index}" title="Click to apply input state #${r.index} to custom circuit">
+                    <td class="td-state">${r.index}</td>
+                    ${allVars.map(v => `<td class="td-val ${r.inputs[v] ? 'val-1' : 'val-0'}">${r.inputs[v]}</td>`).join('')}
+                    ${statements.map(s => `<td class="td-out ${r.outputs[s.outputName] ? 'out-1' : 'out-0'}"><strong>${r.outputs[s.outputName]}</strong></td>`).join('')}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // Allow clicking any row in custom truth table to set switch inputs
+      if (typeof container.querySelectorAll === 'function') {
+        container.querySelectorAll('.truth-table tbody tr[data-row-index]').forEach(rowEl => {
+          rowEl.addEventListener('click', () => {
+            const rIdx = parseInt(rowEl.getAttribute('data-row-index'), 10);
+            const rowData = tt.rows[rIdx];
+            if (rowData && rowData.inputs) {
+              this.applyInputsToCircuit(rowData.inputs);
+            }
+          });
+        });
+      }
+    }
+
+    renderCustomHowItWorks(statements, tokens, circuit, allVars) {
+      const container = document.getElementById('custom-learning-content');
+      if (!container) return;
+
+      if (!statements || statements.length === 0) {
+        container.innerHTML = `
+          <div class="custom-empty-notice" style="padding: 24px; text-align: center; color: var(--text-dim);">
+            <span style="font-size: 28px; display: block; margin-bottom: 8px;">💡</span>
+            <strong>Awaiting custom circuit design</strong><br>
+            <span style="font-size: 12px;">Wire your switches and gates to an output probe to see the step-by-step logic and gate analysis.</span>
+          </div>
+        `;
+        return;
+      }
+
+      // Count gate types in custom circuit
+      const gateCounts = {};
+      let totalGates = 0;
+      if (circuit) {
+        circuit.components.forEach(comp => {
+          const base = comp.type.replace(/[0-9]/g, '');
+          if (['AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR'].includes(base)) {
+            gateCounts[comp.type] = (gateCounts[comp.type] || 0) + 1;
+            totalGates++;
+          }
+        });
+      }
+
+      const gateBadges = Object.entries(gateCounts).map(([type, count]) => {
+        let ic = '';
+        if (this.canvas && typeof this.canvas.getGateICTag === 'function') {
+          ic = this.canvas.getGateICTag(type);
+        } else {
+          const icMap = { 'AND': '74LS08', 'AND3': '74LS11', 'OR': '74LS32', 'OR3': '74HC4075', 'NOT': '74LS04', 'NAND': '74LS00', 'NAND3': '74LS10', 'NOR': '74LS02', 'NOR3': '74LS27', 'XOR': '74LS86', 'XNOR': '74LS266' };
+          ic = icMap[type] || '';
+        }
+        return `<span class="custom-stat-pill" style="margin-right: 6px; margin-bottom: 6px; display: inline-block;">${count}× ${type} (${ic})</span>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="custom-how-card" style="padding: 10px; background: rgba(30, 41, 59, 0.5); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+          <h5 style="margin: 0 0 6px 0; font-size: 13px;">🔬 Circuit Architecture Breakdown</h5>
+          <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;">
+            Total Discrete Gates: <strong>${totalGates}</strong> | Input Switches: <strong>${allVars.length}</strong> (${allVars.join(', ')})
+          </div>
+          <div style="display: flex; flex-wrap: wrap;">
+            ${gateBadges || '<em>No discrete gates</em>'}
+          </div>
+        </div>
+
+        <div class="custom-how-card" style="padding: 10px; background: rgba(30, 41, 59, 0.5); border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 12px;">
+          <h5 style="margin: 0 0 6px 0; font-size: 13px;">📐 Step-by-Step Logic Equations</h5>
+          ${statements.map(s => {
+            const exprText = (s.ast && typeof s.ast.toText === 'function') ? s.ast.toText() : (s.ast?.type || '');
+            return `
+              <div style="margin-bottom: 8px;">
+                <span class="lbl-small" style="color: var(--accent-blue); font-weight: bold;">Output ${s.outputName}:</span>
+                <code style="display: block; padding: 6px; background: #0f172a; border-radius: 4px; font-family: monospace; font-size: 12px; margin-top: 4px;">
+                  ${s.outputName} = ${exprText}
+                </code>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="custom-how-card" style="padding: 10px; background: rgba(30, 41, 59, 0.5); border-radius: 6px; border: 1px solid var(--border-color);">
+          <h5 style="margin: 0 0 6px 0; font-size: 13px;">💡 Signal Propagation & Verification</h5>
+          <p style="font-size: 12px; line-height: 1.5; color: var(--text-dim); margin: 0 0 8px 0;">
+            Toggle any input switch on the canvas to observe live voltage propagation. Cyan glowing wires indicate logic HIGH (1) and dark wires indicate logic LOW (0).
+          </p>
+          <div style="font-size: 11px; color: #38bdf8;">
+            ✓ Real-time simulator verifies signals across ${circuit ? circuit.wires.length : 0} wired interconnects.
+          </div>
+        </div>
+      `;
     }
 
     initSidebarResizer() {
